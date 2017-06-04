@@ -7,44 +7,45 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.pinterest.android.pdk.PDKResponse;
-
+import com.squareup.picasso.Picasso;
 import java.util.List;
 
 //TODO: Add onclicklistener to each item
-//TODO: Make generic so other fragments can use
-public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecyclerViewAdapter.ViewHolder> {
+//TODO: Make generic so other AllPinsFragments can use
+public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecyclerViewAdapter.BoardViewHolder> {
 
     private final List<PDKResponse> mList;
     private Context mContext;
+    private final OnItemClickListener listener;
+    private String boardId;
 
-    public BoardsRecyclerViewAdapter(List<PDKResponse> items, Context context) {
+    public interface OnItemClickListener {
+        void onItemClick(String boardId);
+    }
+
+    public BoardsRecyclerViewAdapter(List<PDKResponse> items, Context context, OnItemClickListener listener) {
         this.mList = items;
         this.mContext = context;
+        this.listener = listener;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BoardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         mContext = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View v = inflater.inflate(R.layout.fragment_item, parent, false);
-        ViewHolder holder = new ViewHolder(v);
+        BoardViewHolder holder = new BoardViewHolder(v);
 
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final BoardViewHolder holder, int position) {
 
-        Object item = mList.get(position);
-        TextView tv = holder.mIdView;
-        TextView textView = holder.mContentView;
-        ImageView imageView = holder.mImageView;
-
-        tv.setText(mList.get(position).getBoardList().get(position).getName());
-//        textView.setText(mList.get(position).getBoardList().get(position).getDescription());
-//        Picasso.with(mContext).load(mList.get(position).getBoardList().get(position).getImageUrl()).into(imageView);
+        boardId = mList.get(position).getBoardList().get(position).getUid().toString();
+        holder.mTitle.setText(mList.get(position).getBoardList().get(position).getName());
+        Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);
     }
 
     @Override
@@ -52,24 +53,25 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
         return mList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class BoardViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView mIdView;
-        public TextView mContentView;
-        public ImageView mImageView;
+        TextView mTitle;
+        ImageView mImageView;
 
-        public ViewHolder(View view) {
-            super(view);
+        public BoardViewHolder(View boardView) {
+            super(boardView);
 
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
-            mImageView = (ImageView) view.findViewById(R.id.image);
+            mTitle = (TextView) boardView.findViewById(R.id.title);
+            mImageView = (ImageView) boardView.findViewById(R.id.image);
+
+            boardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onItemClick(boardId);
+                }
+            });
         }
 
-//        @Override
-//        public String toString() {
-//            return super.toString() + " '" + mContentView.getText() + "'";
-//        }
     }
 
 }

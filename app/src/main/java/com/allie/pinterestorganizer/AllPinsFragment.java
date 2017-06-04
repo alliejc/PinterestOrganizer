@@ -20,14 +20,11 @@ import com.pinterest.android.pdk.PDKException;
 import com.pinterest.android.pdk.PDKResponse;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class AllPinsFragment extends Fragment {
 
     private OnPinFragmentInteractionListener mListener;
-    private List mBoards = new ArrayList();
     private RecyclerView mRecyclerView;
     private List<PDKResponse> pinList = new ArrayList<>();
 
@@ -87,12 +84,8 @@ public class AllPinsFragment extends Fragment {
                 Log.d("boards", response.getBoardList().toString());
 
                 for(int i = 0; i < response.getBoardList().size(); i++){
-//                    mBoards.add(response.getData());
                     pinList.add(response);
-//                    mBoards.add(response.getBoardList().get(i).getImageUrl());
-//                    mBoards.add(response.getBoardList().get(i).getName());
                 }
-//                mBoards.addAll(response.getBoardList());
 
                 setRecyclerView();
             }

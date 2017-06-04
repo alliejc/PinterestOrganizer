@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
 import com.pinterest.android.pdk.PDKException;
@@ -21,11 +20,12 @@ import com.pinterest.android.pdk.PDKResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BoardsFragment.OnBoardFragmentInteractionListener, AllPinsFragment.OnPinFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements BoardsFragment.OnBoardFragmentInteractionListener {
 
     private ActionBar mActionBar;
     private static final String appID = "4903389675355384750";
     private String mUserId;
+    private String mSelectedBoardId;
     private static final String BACK_STACK_ROOT_TAG = "root_fragment";
     private static final String ROOT = "root";
 
@@ -104,9 +104,9 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
         addFragmentOnTop(BoardsFragment.newInstance());
     }
 
-    private void showBoardPins() {
-        addFragmentOnTop(AllPinsFragment.newInstance());
-    }
+//    private void showBoardPins() {
+//        addFragmentOnTop(AllPinsFragment.newInstance());
+//    }
 
     private void addFragmentOnTop(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -134,12 +134,13 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
     }
 
     @Override
-    public void onBoardFragmentInteraction(Uri uri) {
-
+    public void onBoardFragmentInteraction(String boardId) {
+        mSelectedBoardId = boardId;
     }
 
-    @Override
-    public void onPinFragmentInteraction(Uri uri) {
+//    @Override
+//    public void onPinFragmentInteraction(Uri uri) {
+//
+//    }
 
-    }
 }

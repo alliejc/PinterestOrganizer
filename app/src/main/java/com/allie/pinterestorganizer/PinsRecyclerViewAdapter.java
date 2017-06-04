@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pinterest.android.pdk.PDKResponse;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -34,14 +35,8 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<com.allie.pint
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Object item = mList.get(position);
-        TextView tv = holder.mIdView;
-        TextView textView = holder.mContentView;
-        ImageView imageView = holder.mImageView;
-
-        tv.setText(mList.get(position).getPinList().get(position).getUid());
-//        textView.setText(mList.get(position).getBoardList().get(position).getDescription());
-//        Picasso.with(mContext).load(mList.get(position).getBoardList().get(position).getImageUrl()).into(imageView);
+        holder.mTitle.setText(mList.get(position).getBoardList().get(position).getName());
+        Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);
     }
 
         @Override
@@ -51,22 +46,16 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<com.allie.pint
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            public TextView mIdView;
-            public TextView mContentView;
-            public ImageView mImageView;
+            TextView mTitle;
+            ImageView mImageView;
 
             public ViewHolder(View view) {
                 super(view);
 
-                mIdView = (TextView) view.findViewById(R.id.id);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                mTitle = (TextView) view.findViewById(R.id.title);
                 mImageView = (ImageView) view.findViewById(R.id.image);
             }
 
-//        @Override
-//        public String toString() {
-//            return super.toString() + " '" + mContentView.getText() + "'";
-//        }
         }
 
     }

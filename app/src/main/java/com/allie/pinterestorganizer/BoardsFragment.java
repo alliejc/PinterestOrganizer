@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,14 +22,17 @@ import com.pinterest.android.pdk.PDKException;
 import com.pinterest.android.pdk.PDKResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class BoardsFragment extends Fragment {
 
     private OnBoardFragmentInteractionListener mListener;
-    private List mBoards = new ArrayList();
     private RecyclerView mRecyclerView;
     private List<PDKResponse> boardList = new ArrayList<>();
+    private BoardsRecyclerViewAdapter mAdapter;
+    private BoardsRecyclerViewAdapter.OnItemClickListener mAdapterOnClickListener;
+    private String mSelectedBoardId;
 
     public BoardsFragment() {
         // Required empty public constructor
@@ -69,29 +74,35 @@ public class BoardsFragment extends Fragment {
         RecyclerView.ItemDecoration dividerItemDecoration = new RecyclerDivider(dividerDrawable);
         mRecyclerView.addItemDecoration(dividerItemDecoration);
 
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        GridLayoutManager mLayoutManager = new GridLayoutManager(getContext(), 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        BoardsRecyclerViewAdapter mAdapter= new BoardsRecyclerViewAdapter(boardList, getContext());
+        mAdapterOnClickListener = new BoardsRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String boardId) {
+                mSelectedBoardId = boardId;
+//                mListener.onBoardFragmentInteraction(mSelectedBoardId);
+            }
+        };
+
+        mAdapter= new BoardsRecyclerViewAdapter(boardList, getContext(), mAdapterOnClickListener);
 
         mRecyclerView.setAdapter(mAdapter);
 
     }
 
     private void getUserBoards() {
-        PDKClient.getInstance().getPath("me/boards", null, new PDKCallback() {
+        HashMap<String, String> params = new HashMap();
+        params.put("fields", "id, name, description, image");
+        PDKClient.getInstance().getPath("me/boards", params , new PDKCallback() {
             @Override
             public void onSuccess(PDKResponse response){
                 Log.d("boards", response.getBoardList().toString());
 
                 for(int i = 0; i < response.getBoardList().size(); i++){
-//                    mBoards.add(response.getData());
                     boardList.add(response);
-//                    mBoards.add(response.getBoardList().get(i).getImageUrl());
-//                    mBoards.add(response.getBoardList().get(i).getName());
                 }
-//                mBoards.addAll(response.getBoardList());
 
                 setRecyclerView();
             }
@@ -103,9 +114,9 @@ public class BoardsFragment extends Fragment {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(String boardId) {
         if (mListener != null) {
-            mListener.onBoardFragmentInteraction(uri);
+            mListener.onBoardFragmentInteraction(boardId);
         }
     }
 
@@ -127,7 +138,6 @@ public class BoardsFragment extends Fragment {
     }
 
     public interface OnBoardFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onBoardFragmentInteraction(Uri uri);
+        void onBoardFragmentInteraction(String boardId);
     }
 }
