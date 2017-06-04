@@ -43,7 +43,6 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
     @Override
     public void onBindViewHolder(final BoardViewHolder holder, int position) {
 
-        boardId = mList.get(position).getBoardList().get(position).getUid().toString();
         holder.mTitle.setText(mList.get(position).getBoardList().get(position).getName());
         Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);
     }
@@ -64,11 +63,10 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
             mTitle = (TextView) boardView.findViewById(R.id.title);
             mImageView = (ImageView) boardView.findViewById(R.id.image);
 
-            boardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onItemClick(boardId);
-                }
+            boardView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                boardId = mList.get(position).getBoardList().get(position).getUid().toString();
+                listener.onItemClick(boardId);
             });
         }
 

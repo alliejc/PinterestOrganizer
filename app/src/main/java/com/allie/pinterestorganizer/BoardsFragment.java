@@ -31,7 +31,6 @@ public class BoardsFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private List<PDKResponse> boardList = new ArrayList<>();
     private BoardsRecyclerViewAdapter mAdapter;
-    private BoardsRecyclerViewAdapter.OnItemClickListener mAdapterOnClickListener;
     private String mSelectedBoardId;
 
     public BoardsFragment() {
@@ -78,15 +77,13 @@ public class BoardsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapterOnClickListener = new BoardsRecyclerViewAdapter.OnItemClickListener() {
+        mAdapter= new BoardsRecyclerViewAdapter(boardList, getContext(), new BoardsRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(String boardId) {
                 mSelectedBoardId = boardId;
-//                mListener.onBoardFragmentInteraction(mSelectedBoardId);
+                mListener.onBoardFragmentInteraction(mSelectedBoardId);
             }
-        };
-
-        mAdapter= new BoardsRecyclerViewAdapter(boardList, getContext(), mAdapterOnClickListener);
+        });
 
         mRecyclerView.setAdapter(mAdapter);
 
