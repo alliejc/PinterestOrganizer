@@ -11,14 +11,13 @@ import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 
-//TODO: Add onclicklistener to each item
 //TODO: Make generic so other AllPinsFragments can use
 public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecyclerViewAdapter.BoardViewHolder> {
 
     private final List<PDKResponse> mList;
     private Context mContext;
     private final OnItemClickListener listener;
-    private String boardId;
+    private String boardName;
 
     public interface OnItemClickListener {
         void onItemClick(String boardId);
@@ -34,7 +33,7 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
     public BoardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         mContext = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View v = inflater.inflate(R.layout.fragment_item, parent, false);
+        View v = inflater.inflate(R.layout.fragment_card_item, parent, false);
         BoardViewHolder holder = new BoardViewHolder(v);
 
         return holder;
@@ -65,8 +64,8 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
 
             boardView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                boardId = mList.get(position).getBoardList().get(position).getUid().toString();
-                listener.onItemClick(boardId);
+                boardName = mList.get(position).getBoardList().get(position).getName().toString();
+                listener.onItemClick(boardName);
             });
         }
 

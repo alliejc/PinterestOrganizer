@@ -13,7 +13,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<com.allie.pinterestorganizer.PinsRecyclerViewAdapter.ViewHolder> {
+//TODO: Add ability to loadmore based off offset
+public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerViewAdapter.ViewHolder> {
 
         private final List<PDKResponse> mList;
         private Context mContext;
@@ -27,7 +28,7 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<com.allie.pint
         public PinsRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             mContext = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            View v = inflater.inflate(R.layout.fragment_item, parent, false);
+            View v = inflater.inflate(R.layout.fragment_card_item, parent, false);
             PinsRecyclerViewAdapter.ViewHolder holder = new PinsRecyclerViewAdapter.ViewHolder(v);
 
             return holder;
@@ -35,8 +36,14 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<com.allie.pint
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.mTitle.setText(mList.get(position).getBoardList().get(position).getName());
+        holder.mTitle.setText(mList.get(position).getPinList().get(position).getNote());
         Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);
+    }
+
+    public void updateAdapter(List<PDKResponse> responses) {
+
+        mList.addAll(responses);
+        notifyDataSetChanged();
     }
 
         @Override

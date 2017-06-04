@@ -2,7 +2,6 @@ package com.allie.pinterestorganizer;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,13 +24,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+//TODO: Hide favorite button
 public class BoardsFragment extends Fragment {
 
     private OnBoardFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private List<PDKResponse> boardList = new ArrayList<>();
     private BoardsRecyclerViewAdapter mAdapter;
-    private String mSelectedBoardId;
+    private String mSelectedBoardName;
 
     public BoardsFragment() {
         // Required empty public constructor
@@ -69,20 +69,14 @@ public class BoardsFragment extends Fragment {
     }
 
     private void setRecyclerView() {
-        Drawable dividerDrawable = ContextCompat.getDrawable(getContext(), R.drawable.recycler_divider);
-        RecyclerView.ItemDecoration dividerItemDecoration = new RecyclerDivider(dividerDrawable);
-        mRecyclerView.addItemDecoration(dividerItemDecoration);
 
-        GridLayoutManager mLayoutManager = new GridLayoutManager(getContext(), 2);
+        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapter= new BoardsRecyclerViewAdapter(boardList, getContext(), new BoardsRecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(String boardId) {
-                mSelectedBoardId = boardId;
-                mListener.onBoardFragmentInteraction(mSelectedBoardId);
-            }
+        mAdapter= new BoardsRecyclerViewAdapter(boardList, getContext(), boardName -> {
+            mSelectedBoardName = boardName;
+            mListener.onBoardFragmentInteraction(mSelectedBoardName);
         });
 
         mRecyclerView.setAdapter(mAdapter);
@@ -95,7 +89,6 @@ public class BoardsFragment extends Fragment {
         PDKClient.getInstance().getPath("me/boards", params , new PDKCallback() {
             @Override
             public void onSuccess(PDKResponse response){
-                Log.d("boards", response.getBoardList().toString());
 
                 for(int i = 0; i < response.getBoardList().size(); i++){
                     boardList.add(response);

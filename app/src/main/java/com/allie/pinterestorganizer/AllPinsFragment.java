@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,26 +22,45 @@ import com.pinterest.android.pdk.PDKException;
 import com.pinterest.android.pdk.PDKResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+//TODO: Add ability to loadmore based off offset
+//TODO: Handle favorite click
 public class AllPinsFragment extends Fragment {
 
     private OnPinFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private List<PDKResponse> pinList = new ArrayList<>();
+    private static final String BOARDNAME = "boardName";
+    private String boardName;
+
+    private static final String USERNAME = "userName";
+    private String userName;
+    private Boolean hasNext;
+    private int mOffset = 0;
+
 
     public AllPinsFragment() {
         // Required empty public constructor
     }
 
-    public static AllPinsFragment newInstance() {
+    public static AllPinsFragment newInstance(String boardName, String userName) {
         AllPinsFragment fragment = new AllPinsFragment();
+        Bundle args = new Bundle();
+        args.putString(BOARDNAME, boardName);
+        args.putString(USERNAME, userName);
+        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            boardName = getArguments().getString(BOARDNAME);
+            userName = getArguments().getString(USERNAME);
+        }
     }
 
     @Override
@@ -63,11 +84,8 @@ public class AllPinsFragment extends Fragment {
     }
 
     private void setRecyclerView() {
-        Drawable dividerDrawable = ContextCompat.getDrawable(getContext(), R.drawable.recycler_divider);
-        RecyclerView.ItemDecoration dividerItemDecoration = new RecyclerDivider(dividerDrawable);
-        mRecyclerView.addItemDecoration(dividerItemDecoration);
 
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
@@ -77,21 +95,34 @@ public class AllPinsFragment extends Fragment {
 
     }
 
+    private String removeSpaces(String string) {
+        return string.replaceAll("\\s+","-");
+    }
+
     private void getUserPins() {
-        PDKClient.getInstance().getPath("me/boards", null, new PDKCallback() {
+        String pathA = "boards/";
+        String pathB = "/pins/";
+        String output = String.format("%s%s/%s%s", pathA, removeSpaces(userName), removeSpaces(boardName), pathB);
+
+        HashMap<String, String> params = new HashMap();
+        params.put("fields", "image, link, note");
+
+        PDKClient.getInstance().getPath(output, params, new PDKCallback() {
             @Override
             public void onSuccess(PDKResponse response){
-                Log.d("boards", response.getBoardList().toString());
 
-                for(int i = 0; i < response.getBoardList().size(); i++){
+                for(int i = 0; i < response.getPinList().size(); i++){
                     pinList.add(response);
                 }
+
+                hasNext = response.hasNext();
 
                 setRecyclerView();
             }
 
             @Override
             public void onFailure(PDKException exception) {
+                Log.d("Failure", "getUserPins");
             }
         });
     }

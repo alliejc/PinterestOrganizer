@@ -3,6 +3,8 @@ package com.allie.pinterestorganizer;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabItem;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -11,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
@@ -18,14 +21,15 @@ import com.pinterest.android.pdk.PDKException;
 import com.pinterest.android.pdk.PDKResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BoardsFragment.OnBoardFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements BoardsFragment.OnBoardFragmentInteractionListener, AllPinsFragment.OnPinFragmentInteractionListener {
 
     private ActionBar mActionBar;
     private static final String appID = "4903389675355384750";
-    private String mUserId;
-    private String mSelectedBoardId;
+    private String mUserName;
+    private String mSelectedBoardName;
     private static final String BACK_STACK_ROOT_TAG = "root_fragment";
     private static final String ROOT = "root";
 
@@ -76,9 +80,20 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
 
             @Override
             public void onSuccess(PDKResponse response) {
-                Log.d(getClass().getName(), response.getData().toString());
-                //user logged in, use response.getUser() to get PDKUser object
-                mUserId = response.getUser().getUid();
+                HashMap<String, String> params = new HashMap();
+                params.put("fields", "id, username");
+
+                PDKClient.getInstance().getPath("me/", params, new PDKCallback(){
+                    @Override
+                    public void onSuccess(PDKResponse response){
+                        mUserName = response.getUser().getUsername().toString();
+                    }
+
+                    @Override
+                    public void onFailure(PDKException exception) {
+                    }
+                });
+
                 showPinterestUserBoards();
             }
 
@@ -103,10 +118,6 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
     private void showPinterestUserBoards() {
         addFragmentOnTop(BoardsFragment.newInstance());
     }
-
-//    private void showBoardPins() {
-//        addFragmentOnTop(AllPinsFragment.newInstance());
-//    }
 
     private void addFragmentOnTop(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -135,12 +146,17 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
 
     @Override
     public void onBoardFragmentInteraction(String boardId) {
-        mSelectedBoardId = boardId;
+        mSelectedBoardName = boardId;
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
+
+        tabLayout.setVisibility(View.VISIBLE);
+
+        addFragmentOnTop(AllPinsFragment.newInstance(mSelectedBoardName, mUserName));
     }
 
-//    @Override
-//    public void onPinFragmentInteraction(Uri uri) {
-//
-//    }
+    @Override
+    public void onPinFragmentInteraction(Uri uri) {
+
+    }
 
 }
