@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.pinterest.android.pdk.PDKBoard;
 import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
 import java.util.List;
@@ -33,7 +35,7 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
     public BoardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         mContext = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View v = inflater.inflate(R.layout.fragment_card_item, parent, false);
+        View v = inflater.inflate(R.layout.board_item, parent, false);
         BoardViewHolder holder = new BoardViewHolder(v);
 
         return holder;
@@ -41,9 +43,19 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
 
     @Override
     public void onBindViewHolder(final BoardViewHolder holder, int position) {
+//        PDKResponse response = mList.get(position);
+//        holder.mTitle.setText(response.getBoardList().get(position).getName());
+//        holder.mTitle.setText(response.getBoardList().get(position).getName());
+
 
         holder.mTitle.setText(mList.get(position).getBoardList().get(position).getName());
         Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);
+    }
+
+    public void updateAdapter(List<PDKResponse> items) {
+
+        mList.addAll(items);
+        notifyDataSetChanged();
     }
 
     @Override

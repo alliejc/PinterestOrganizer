@@ -1,16 +1,11 @@
 package com.allie.pinterestorganizer;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-//TODO: Hide favorite button
 public class BoardsFragment extends Fragment {
 
     private OnBoardFragmentInteractionListener mListener;
@@ -53,7 +47,7 @@ public class BoardsFragment extends Fragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View rootView = inflater.inflate(R.layout.fragment_item_list, container, false);
+        View rootView = inflater.inflate(R.layout.item_list, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
 
         return rootView;
@@ -63,9 +57,9 @@ public class BoardsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (savedInstanceState == null) {
+//        if (savedInstanceState == null) {
             getUserBoards();
-        }
+//        }
     }
 
     private void setRecyclerView() {
@@ -80,6 +74,7 @@ public class BoardsFragment extends Fragment {
         });
 
         mRecyclerView.setAdapter(mAdapter);
+//        mAdapter.updateAdapter(boardList);
 
     }
 
@@ -104,9 +99,9 @@ public class BoardsFragment extends Fragment {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(String boardId) {
+    public void onButtonPressed(String boardName) {
         if (mListener != null) {
-            mListener.onBoardFragmentInteraction(boardId);
+            mListener.onBoardFragmentInteraction(boardName);
         }
     }
 
@@ -128,6 +123,6 @@ public class BoardsFragment extends Fragment {
     }
 
     public interface OnBoardFragmentInteractionListener {
-        void onBoardFragmentInteraction(String boardId);
+        void onBoardFragmentInteraction(String boardName);
     }
 }

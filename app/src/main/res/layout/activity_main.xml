@@ -1,55 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.allie.pinterestorganizer.MainActivity"
-    android:weightSum="100">
+    android:fitsSystemWindows="true">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:minHeight="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:theme="@style/AppTheme"
-        android:layout_weight="10"/>
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            android:theme="@style/AppTheme" />
+
+        <android.support.design.widget.TabLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:id="@+id/tablayout"
+            android:visibility="invisible">
+
+            <android.support.design.widget.TabItem
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/color_dark_gray"
+                android:text="All Pins"/>
+
+            <android.support.design.widget.TabItem
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/color_dark_gray"
+                android:text="Saved Pins" />
+        </android.support.design.widget.TabLayout>
+
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="10">
-
-    <android.support.design.widget.TabLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:id="@+id/tablayout"
-        android:visibility="gone"
-        >
-
-        <android.support.design.widget.TabItem
-            android:id="@+id/tabone"
-            android:text="All Pins"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:minHeight="?attr/actionBarSize" />
-
-        <android.support.design.widget.TabItem
-            android:id="@+id/tabtwo"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:minHeight="?attr/actionBarSize"
-            android:text="Favorite Pins" />
-
-    </android.support.design.widget.TabLayout>
+        android:layout_height="match_parent">
     </android.support.v4.view.ViewPager>
+        <FrameLayout
+            android:id="@+id/main_framelayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
-    <FrameLayout
-        android:id="@+id/main_framelayout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="800"/>
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
+
+
+

@@ -3,10 +3,11 @@ package com.allie.pinterestorganizer;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.TabItem;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -24,14 +25,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements BoardsFragment.OnBoardFragmentInteractionListener, AllPinsFragment.OnPinFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener,BoardsFragment.OnBoardFragmentInteractionListener, AllPinsFragment.OnPinFragmentInteractionListener, SavedPinsFragment.OnFragmentInteractionListener {
 
     private ActionBar mActionBar;
     private static final String appID = "4903389675355384750";
     private String mUserName;
-    private String mSelectedBoardName;
+    private String mToken;
     private static final String BACK_STACK_ROOT_TAG = "root_fragment";
     private static final String ROOT = "root";
+    private String mBoardName;
+
+    //This is our tablayout
+    private TabLayout tabLayout;
+
+    //This is our viewPager
+    private android.support.v4.view.ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +55,13 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
         mActionBar.setTitle(R.string.app_name);
         mActionBar.setDisplayShowTitleEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
+
+        tabLayout = (TabLayout) findViewById(R.id.tablayout);
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        Pager adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        tabLayout.addOnTabSelectedListener(this);
     }
 
     @Override
@@ -57,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
                 return true;
 
             case android.R.id.home:
-                onBackPressed();
+//                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -93,8 +108,7 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
                     public void onFailure(PDKException exception) {
                     }
                 });
-
-                showPinterestUserBoards();
+                addFragmentOnTop(BoardsFragment.newInstance());
             }
 
             @Override
@@ -110,13 +124,10 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
         super.onActivityResult(requestCode, resultCode, data);
 
         PDKClient.getInstance().onOauthResponse(requestCode, resultCode, data);
+        mToken = data.getExtras().toString();
 
         Toast.makeText(getApplicationContext(), "result", Toast.LENGTH_SHORT).show();
 
-    }
-
-    private void showPinterestUserBoards() {
-        addFragmentOnTop(BoardsFragment.newInstance());
     }
 
     private void addFragmentOnTop(Fragment fragment) {
@@ -130,28 +141,31 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
                 .commit();
     }
 
+
+//    @Override
+//    public void onBackPressed() {
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        if (fragmentManager.getBackStackEntryCount() > 1) {
+//            fragmentManager.popBackStackImmediate();
+//
+//        } else if (fragmentManager.getBackStackEntryCount() < 1) {
+//            moveTaskToBack(true);
+//
+//        } else {
+//            super.onBackPressed();
+//        }
+//    }
+
     @Override
-    public void onBackPressed() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragmentManager.getBackStackEntryCount() >= 1) {
-            fragmentManager.popBackStackImmediate();
-
-        } else if (fragmentManager.getBackStackEntryCount() < 1) {
-            moveTaskToBack(true);
-
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public void onBoardFragmentInteraction(String boardId) {
-        mSelectedBoardName = boardId;
+    public void onBoardFragmentInteraction(String boardName) {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
 
         tabLayout.setVisibility(View.VISIBLE);
 
-        addFragmentOnTop(AllPinsFragment.newInstance(mSelectedBoardName, mUserName));
+        mBoardName = boardName;
+
+        addFragmentOnTop(AllPinsFragment.newInstance(boardName, mUserName));
+
     }
 
     @Override
@@ -159,4 +173,25 @@ public class MainActivity extends AppCompatActivity implements BoardsFragment.On
 
     }
 
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        viewPager.setCurrentItem(tab.getPosition());
+        viewPager.getCurrentItem();
+//        getItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }

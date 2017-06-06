@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
 
@@ -28,7 +29,7 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerVi
         public PinsRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             mContext = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            View v = inflater.inflate(R.layout.fragment_card_item, parent, false);
+            View v = inflater.inflate(R.layout.pin_item, parent, false);
             PinsRecyclerViewAdapter.ViewHolder holder = new PinsRecyclerViewAdapter.ViewHolder(v);
 
             return holder;
@@ -55,12 +56,14 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerVi
 
             TextView mTitle;
             ImageView mImageView;
+            MaterialFavoriteButton mFavoriteButton;
 
             public ViewHolder(View view) {
                 super(view);
 
                 mTitle = (TextView) view.findViewById(R.id.title);
                 mImageView = (ImageView) view.findViewById(R.id.image);
+                mFavoriteButton = (MaterialFavoriteButton) view.findViewById(R.id.favorite);
             }
 
         }

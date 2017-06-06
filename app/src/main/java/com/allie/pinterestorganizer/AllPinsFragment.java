@@ -1,14 +1,11 @@
 package com.allie.pinterestorganizer;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -68,7 +65,7 @@ public class AllPinsFragment extends Fragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View rootView = inflater.inflate(R.layout.fragment_item_list, container, false);
+        View rootView = inflater.inflate(R.layout.item_list, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
 
         return rootView;
@@ -96,7 +93,11 @@ public class AllPinsFragment extends Fragment {
     }
 
     private String removeSpaces(String string) {
-        return string.replaceAll("\\s+","-");
+        String noSpacesString = "";
+        if(string != null){
+            noSpacesString = string.replaceAll("\\s+","-");
+        }
+        return noSpacesString;
     }
 
     private void getUserPins() {
