@@ -7,6 +7,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,8 +40,8 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     //This is our tablayout
     private TabLayout tabLayout;
 
-    //This is our viewPager
-    private android.support.v4.view.ViewPager viewPager;
+//    //This is our viewPager
+//    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
         PDKClient.configureInstance(this, appID);
         PDKClient.getInstance().onConnect(this);
+//        Pager adapter = new Pager(getSupportFragmentManager());
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
@@ -58,9 +61,9 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        Pager adapter = new Pager(getSupportFragmentManager(), tabLayout.getTabCount());
-        viewPager.setAdapter(adapter);
+//        viewPager = (ViewPager) findViewById(R.id.viewpager);
+
+//        viewPager.setAdapter(adapter);
         tabLayout.addOnTabSelectedListener(this);
     }
 
@@ -175,9 +178,12 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        viewPager.setCurrentItem(tab.getPosition());
-//        viewPager.getCurrentItem();
-//        getItem(tab.getPosition());
+        if(tab.getPosition() == 0) {
+            addFragmentOnTop(AllPinsFragment.newInstance(mBoardName, mUserName));
+        } else {
+            addFragmentOnTop(SavedPinsFragment.newInstance(mBoardName, mUserName));
+        }
+
     }
 
     @Override
@@ -194,4 +200,47 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+//    public class Pager extends FragmentPagerAdapter {
+//
+//        FragmentManager fragmentManager;
+//
+//        //Constructor to the class
+//        public Pager(FragmentManager fm) {
+//            super(fm);
+//            this.fragmentManager = fm;
+//        }
+//
+//        @Override
+//        public Fragment getItem(int position) {
+//            switch (position){
+//                case 0:
+//            }
+//        }
+//
+//        //        //Overriding method getItem
+////        @Override
+////        public Fragment getItem(int position) {
+////            fragmentManager =getSupportFragmentManager();
+////            //Returning the current tabs
+////            switch (position) {
+////                case 0:
+////                   AllPinsFragment pinsFragment = AllPinsFragment.newInstance(mBoardName, mUserName);
+////                    addFragmentOnTop(pinsFragment);
+////                   return pinsFragment;
+////                case 1:
+////                    SavedPinsFragment savedPinsFragment = SavedPinsFragment.newInstance(mBoardName, mUserName);
+////                    addFragmentOnTop(savedPinsFragment);
+////                    return savedPinsFragment;
+////                default:
+////                     return null;
+////            }
+////        }
+//
+//        //Overriden method getCount to get the number of tabs
+//        @Override
+//        public int getCount() {
+//            return 2;
+//        }
+//    }
 }

@@ -1,6 +1,7 @@
 package com.allie.pinterestorganizer;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,9 +14,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
 import com.pinterest.android.pdk.PDKException;
+import com.pinterest.android.pdk.PDKPin;
 import com.pinterest.android.pdk.PDKResponse;
 
 import java.util.ArrayList;
@@ -29,13 +32,17 @@ public class AllPinsFragment extends Fragment {
     private OnPinFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private List<PDKResponse> pinList = new ArrayList<>();
-    private static final String BOARDNAME = "boardName";
-    private String boardName;
+    private MaterialFavoriteButton mMaterialFavoriteButton;
+    public SharedPreferences myPrefs;
+    private SharedPreferences.Editor editor;
+    private Boolean hasNext;
+    private int mOffset = 0;
 
     private static final String USERNAME = "userName";
     private String userName;
-    private Boolean hasNext;
-    private int mOffset = 0;
+
+    private static final String BOARDNAME = "boardName";
+    private String boardName;
 
 
     public AllPinsFragment() {
@@ -58,6 +65,8 @@ public class AllPinsFragment extends Fragment {
             boardName = getArguments().getString(BOARDNAME);
             userName = getArguments().getString(USERNAME);
         }
+        myPrefs = getContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        editor = myPrefs.edit();
     }
 
     @Override
@@ -66,6 +75,7 @@ public class AllPinsFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View rootView = inflater.inflate(R.layout.item_list, container, false);
+        mMaterialFavoriteButton = (MaterialFavoriteButton) rootView.findViewById(R.id.favorite);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
 
         return rootView;
@@ -75,9 +85,7 @@ public class AllPinsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (savedInstanceState == null) {
             getUserPins();
-        }
     }
 
     private void setRecyclerView() {
@@ -86,7 +94,14 @@ public class AllPinsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(pinList, getContext());
+        PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(pinList, getContext(), (savedPin, favorite) -> {
+            if(favorite){
+                editor.putString(savedPin.getUid(), savedPin.getUid()).commit();
+//                myPrefs.edit().putString(savedPin.getUid(), savedPin.getUid()).apply();
+            } else {
+                myPrefs.edit().remove(savedPin.getUid()).apply();
+            }
+        });
 
         mRecyclerView.setAdapter(mAdapter);
 
