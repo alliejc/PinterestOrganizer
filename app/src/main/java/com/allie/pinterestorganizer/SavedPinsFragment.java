@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -19,15 +20,18 @@ import com.pinterest.android.pdk.PDKException;
 import com.pinterest.android.pdk.PDKPin;
 import com.pinterest.android.pdk.PDKResponse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SavedPinsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private List<PDKPin> pinList;
-    public SharedPreferences myPrefs;
+    private List<PDKPin> pinList = new ArrayList();
+    private SharedPreferences mPreferences;
+    private Map<String,?> keys;
 
     private static final String USERNAME = "userName";
     private String userName;
@@ -57,7 +61,9 @@ public class SavedPinsFragment extends Fragment {
             boardName = getArguments().getString(BOARDNAME);
             userName = getArguments().getString(USERNAME);
         }
-        myPrefs = getContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        keys = mPreferences.getAll();
+
 
     }
 
@@ -75,7 +81,6 @@ public class SavedPinsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         getSavedUserPins();
     }
 
@@ -95,19 +100,19 @@ public class SavedPinsFragment extends Fragment {
         HashMap<String, String> params = new HashMap();
         params.put("fields", "image, link, note");
 
+
         PDKClient.getInstance().getPath(output, params, new PDKCallback() {
             @Override
-            public void onSuccess(PDKResponse response){
+            public void onSuccess(PDKResponse response) {
 
-                for(int i = 0; i < response.getPinList().size(); i++){
-                    if(myPrefs.contains(response.getPinList().get(i).getUid())){
+                for (int i = 0; i < response.getPinList().size(); i++) {
+                    if (keys.containsKey(response.getPinList().get(i).getUid())){
                         pinList.add(response.getPinList().get(i));
                     }
                 }
-
                 setRecyclerView();
-            }
 
+            }
             @Override
             public void onFailure(PDKException exception) {
                 Log.d("Failure", "getUserPins");

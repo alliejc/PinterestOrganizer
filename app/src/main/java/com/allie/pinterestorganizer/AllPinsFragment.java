@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -33,7 +34,7 @@ public class AllPinsFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private List<PDKResponse> pinList = new ArrayList<>();
     private MaterialFavoriteButton mMaterialFavoriteButton;
-    public SharedPreferences myPrefs;
+    public SharedPreferences mPreferences;
     private SharedPreferences.Editor editor;
     private Boolean hasNext;
     private int mOffset = 0;
@@ -65,8 +66,8 @@ public class AllPinsFragment extends Fragment {
             boardName = getArguments().getString(BOARDNAME);
             userName = getArguments().getString(USERNAME);
         }
-        myPrefs = getContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
-        editor = myPrefs.edit();
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        editor = mPreferences.edit();
     }
 
     @Override
@@ -96,10 +97,9 @@ public class AllPinsFragment extends Fragment {
 
         PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(pinList, getContext(), (savedPin, favorite) -> {
             if(favorite){
-                editor.putString(savedPin.getUid(), savedPin.getUid()).commit();
-//                myPrefs.edit().putString(savedPin.getUid(), savedPin.getUid()).apply();
+                editor.putString(savedPin.getUid(), savedPin.getUid()).apply();
             } else {
-                myPrefs.edit().remove(savedPin.getUid()).apply();
+                editor.remove(savedPin.getUid()).apply();
             }
         });
 
