@@ -32,7 +32,7 @@ public class AllPinsFragment extends Fragment {
 
     private OnPinFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private List<PDKResponse> pinList = new ArrayList<>();
+    private List<PDKPin> pinList = new ArrayList<>();
     private MaterialFavoriteButton mMaterialFavoriteButton;
     public SharedPreferences mPreferences;
     private SharedPreferences.Editor editor;
@@ -86,7 +86,7 @@ public class AllPinsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-            getUserPins();
+        getUserPins();
     }
 
     private void setRecyclerView() {
@@ -95,7 +95,7 @@ public class AllPinsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(pinList, getContext(), (savedPin, favorite) -> {
+        PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(pinList, getContext(), (PDKPin savedPin, Boolean favorite) -> {
             if(favorite){
                 editor.putString(savedPin.getUid(), savedPin.getUid()).apply();
             } else {
@@ -128,7 +128,7 @@ public class AllPinsFragment extends Fragment {
             public void onSuccess(PDKResponse response){
 
                 for(int i = 0; i < response.getPinList().size(); i++){
-                    pinList.add(response);
+                    pinList.add(response.getPinList().get(i));
                 }
 
                 hasNext = response.hasNext();

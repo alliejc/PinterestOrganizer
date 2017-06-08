@@ -1,6 +1,8 @@
 package com.allie.pinterestorganizer;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,20 +16,23 @@ import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Map;
 
 //TODO: Add ability to loadmore based off offset
 public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerViewAdapter.ViewHolder> {
 
-    private final List<PDKResponse> mList;
+    private final List<PDKPin> mList;
     private Context mContext;
     private final OnSaveClickListener listener;
+    private SharedPreferences preferences;
+    private Map<String,?> keys;
 
     public interface OnSaveClickListener {
         void onSaveClick(PDKPin savedPin, Boolean favorite);
     }
 
 
-    public PinsRecyclerViewAdapter(List<PDKResponse> items, Context context, OnSaveClickListener listener) {
+    public PinsRecyclerViewAdapter(List<PDKPin> items, Context context, OnSaveClickListener listener) {
         this.mList = items;
         this.mContext = context;
         this.listener = listener;
@@ -39,19 +44,25 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerVi
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View v = inflater.inflate(R.layout.pin_item, parent, false);
         PinsRecyclerViewAdapter.ViewHolder holder = new PinsRecyclerViewAdapter.ViewHolder(v);
+        preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        keys = preferences.getAll();
+
 
         return holder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.mTitle.setText(mList.get(position).getPinList().get(position).getNote());
-        Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);
+        if(keys.containsKey(mList.get(position).getUid())){
+            holder.mFavoriteButton.setFavorite(true);
+        }
+        holder.mTitle.setText(mList.get(position).getNote());
+        Picasso.with(mContext).load(mList.get(position).getImageUrl()).into(holder.mImageView);
     }
 
-    public void updateAdapter(List<PDKResponse> responses) {
+    public void updateAdapter(List<PDKPin> pins) {
 
-        mList.addAll(responses);
+        mList.addAll(pins);
         notifyDataSetChanged();
     }
 
@@ -74,7 +85,12 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerVi
             mFavoriteButton = (MaterialFavoriteButton) view.findViewById(R.id.favorite);
 
             mFavoriteButton.setOnFavoriteChangeListener((materialFavoriteButton, b) -> {
-                listener.onSaveClick(mList.get(getAdapterPosition()).getPinList().get(getAdapterPosition()), b);
+                if(b){
+                    mFavoriteButton.setFavorite(true);
+                } else {
+                    mFavoriteButton.setFavorite(false);
+                }
+                listener.onSaveClick(mList.get(getAdapterPosition()), b);
             });
 
         }

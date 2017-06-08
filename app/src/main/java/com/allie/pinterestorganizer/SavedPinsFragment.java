@@ -32,6 +32,7 @@ public class SavedPinsFragment extends Fragment {
     private List<PDKPin> pinList = new ArrayList();
     private SharedPreferences mPreferences;
     private Map<String,?> keys;
+    private SharedPreferences.Editor editor;
 
     private static final String USERNAME = "userName";
     private String userName;
@@ -57,13 +58,14 @@ public class SavedPinsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        keys = mPreferences.getAll();
+        editor = mPreferences.edit();
+
         if (getArguments() != null) {
             boardName = getArguments().getString(BOARDNAME);
             userName = getArguments().getString(USERNAME);
         }
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        keys = mPreferences.getAll();
-
 
     }
 
@@ -81,7 +83,8 @@ public class SavedPinsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getSavedUserPins();
+
+            getSavedUserPins();
     }
 
     private String removeSpaces(String string) {
@@ -127,7 +130,11 @@ public class SavedPinsFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         SavedPinsRecyclerAdapter mAdapter = new SavedPinsRecyclerAdapter(pinList, getContext(), (savedPin, favorite) -> {
-
+            if(favorite){
+                editor.putString(savedPin.getUid(), savedPin.getUid()).apply();
+            } else {
+                editor.remove(savedPin.getUid()).apply();
+            }
         });
         mRecyclerView.setAdapter(mAdapter);
 
@@ -157,16 +164,6 @@ public class SavedPinsFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

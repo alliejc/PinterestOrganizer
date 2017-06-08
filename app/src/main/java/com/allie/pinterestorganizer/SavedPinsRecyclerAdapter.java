@@ -47,6 +47,7 @@ public class SavedPinsRecyclerAdapter extends RecyclerView.Adapter<SavedPinsRecy
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mTitle.setText(mList.get(position).getNote());
         Picasso.with(mContext).load(mList.get(position).getImageUrl()).into(holder.mImageView);
+        holder.mFavoriteButton.setFavorite(true);
     }
 
 //        public void updateAdapter(List<PDKPin> responses) {
@@ -74,6 +75,11 @@ public class SavedPinsRecyclerAdapter extends RecyclerView.Adapter<SavedPinsRecy
                 mFavoriteButton = (MaterialFavoriteButton) view.findViewById(R.id.favorite);
 
                 mFavoriteButton.setOnFavoriteChangeListener((materialFavoriteButton, b) -> {
+                    if(b){
+                        mFavoriteButton.setFavorite(true);
+                    } else {
+                        mFavoriteButton.setFavorite(false);
+                    }
                     listener.onSaveClick(mList.get(getAdapterPosition()), b);
                 });
 
