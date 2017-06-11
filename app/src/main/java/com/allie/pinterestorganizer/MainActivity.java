@@ -1,22 +1,19 @@
 package com.allie.pinterestorganizer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
@@ -34,37 +31,28 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     private String mUserName;
     private String mToken;
     private static final String BACK_STACK_ROOT_TAG = "root_fragment";
-    private static final String ROOT = "root";
     private String mBoardName;
+    private TabLayout mTabLayout;
+    public SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor mEditor;
 
-    //This is our tablayout
-    private TabLayout tabLayout;
-
-//    //This is our viewPager
-//    private ViewPager viewPager;
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         PDKClient.configureInstance(this, appID);
         PDKClient.getInstance().onConnect(this);
-//        Pager adapter = new Pager(getSupportFragmentManager());
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(myToolbar);
-        mActionBar = getSupportActionBar();
-        mActionBar.setTitle(R.string.app_name);
-        mActionBar.setDisplayShowTitleEnabled(true);
-        mActionBar.setHomeButtonEnabled(true);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mEditor = mSharedPreferences.edit();
 
-        tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        setupToolBar();
 
-//        viewPager = (ViewPager) findViewById(R.id.viewpager);
-
-//        viewPager.setAdapter(adapter);
-        tabLayout.addOnTabSelectedListener(this);
+        if(mSharedPreferences.getString("token", "").isEmpty() || mSharedPreferences.getString("username", "").isEmpty()){
+            loginWithPinterest();
+        } else {
+            loadHomePage();
+        }
     }
 
     @Override
@@ -75,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
                 return true;
 
             case android.R.id.home:
-//                onBackPressed();
+                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -88,30 +76,42 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         return true;
     }
 
+    private void setupToolBar() {
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+        mActionBar = getSupportActionBar();
+        mActionBar.setTitle(R.string.app_name);
+        mActionBar.setDisplayShowTitleEnabled(true);
+        mActionBar.setHomeButtonEnabled(true);
+
+        mTabLayout = (TabLayout) findViewById(R.id.tablayout);
+        mTabLayout.addOnTabSelectedListener(this);
+    }
+
     private void loginWithPinterest() {
 
         List scopes = new ArrayList<String>();
         scopes.add(PDKClient.PDKCLIENT_PERMISSION_READ_PUBLIC);
         scopes.add(PDKClient.PDKCLIENT_PERMISSION_WRITE_PUBLIC);
 
-        PDKClient.getInstance().login(this, scopes, new PDKCallback(){
+        PDKClient.getInstance().login(this, scopes, new PDKCallback() {
 
             @Override
             public void onSuccess(PDKResponse response) {
                 HashMap<String, String> params = new HashMap();
                 params.put("fields", "id, username");
 
-                PDKClient.getInstance().getPath("me/", params, new PDKCallback(){
+                PDKClient.getInstance().getPath("me/", params, new PDKCallback() {
                     @Override
-                    public void onSuccess(PDKResponse response){
+                    public void onSuccess(PDKResponse response) {
                         mUserName = response.getUser().getUsername().toString();
+                        mEditor.putString("username", mUserName).apply();
                     }
 
                     @Override
                     public void onFailure(PDKException exception) {
                     }
                 });
-                addFragmentOnTop(BoardsFragment.newInstance());
             }
 
             @Override
@@ -122,12 +122,21 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         Toast.makeText(getApplicationContext(), "login", Toast.LENGTH_SHORT).show();
     }
 
+    private void loadHomePage() {
+        //Not added to backstack to keep as "home screen" fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.main_framelayout, BoardsFragment.newInstance(), "AllBoards").commit();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         PDKClient.getInstance().onOauthResponse(requestCode, resultCode, data);
-        mToken = data.getExtras().toString();
+        mToken = data.getExtras().getString("PDKCLIENT_EXTRA_RESULT");
+        mEditor.putString("token", mToken).apply();
+
+        loadHomePage();
 
         Toast.makeText(getApplicationContext(), "result", Toast.LENGTH_SHORT).show();
 
@@ -145,29 +154,28 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     }
 
 
-//    @Override
-//    public void onBackPressed() {
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        if (fragmentManager.getBackStackEntryCount() > 1) {
-//            fragmentManager.popBackStackImmediate();
-//
-//        } else if (fragmentManager.getBackStackEntryCount() < 1) {
-//            moveTaskToBack(true);
-//
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
+    @Override
+    public void onBackPressed() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (fragmentManager.getBackStackEntryCount() > 1) {
+            fragmentManager.popBackStackImmediate();
+
+        } else if (fragmentManager.getBackStackEntryCount() < 1) {
+            moveTaskToBack(true);
+
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public void onBoardFragmentInteraction(String boardName) {
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
-
-        tabLayout.setVisibility(View.VISIBLE);
 
         mBoardName = boardName;
 
-        addFragmentOnTop(AllPinsFragment.newInstance(boardName, mUserName));
+        addFragmentOnTop(AllPinsFragment.newInstance(boardName));
+        mTabLayout.getTabAt(1).select();
+//        onTabSelected(mTabLayout.getTabAt(1));
 
     }
 
@@ -178,10 +186,12 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        if(tab.getPosition() == 0) {
-            addFragmentOnTop(AllPinsFragment.newInstance(mBoardName, mUserName));
+        if (tab.getPosition() == 0) {
+           loadHomePage();
+        } else if (tab.getPosition() == 1) {
+            addFragmentOnTop(AllPinsFragment.newInstance(mBoardName));
         } else {
-            addFragmentOnTop(SavedPinsFragment.newInstance(mBoardName, mUserName));
+            addFragmentOnTop(SavedPinsFragment.newInstance(mBoardName));
         }
 
     }
@@ -200,47 +210,4 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     public void onFragmentInteraction(Uri uri) {
 
     }
-
-//    public class Pager extends FragmentPagerAdapter {
-//
-//        FragmentManager fragmentManager;
-//
-//        //Constructor to the class
-//        public Pager(FragmentManager fm) {
-//            super(fm);
-//            this.fragmentManager = fm;
-//        }
-//
-//        @Override
-//        public Fragment getItem(int position) {
-//            switch (position){
-//                case 0:
-//            }
-//        }
-//
-//        //        //Overriding method getItem
-////        @Override
-////        public Fragment getItem(int position) {
-////            fragmentManager =getSupportFragmentManager();
-////            //Returning the current tabs
-////            switch (position) {
-////                case 0:
-////                   AllPinsFragment pinsFragment = AllPinsFragment.newInstance(mBoardName, mUserName);
-////                    addFragmentOnTop(pinsFragment);
-////                   return pinsFragment;
-////                case 1:
-////                    SavedPinsFragment savedPinsFragment = SavedPinsFragment.newInstance(mBoardName, mUserName);
-////                    addFragmentOnTop(savedPinsFragment);
-////                    return savedPinsFragment;
-////                default:
-////                     return null;
-////            }
-////        }
-//
-//        //Overriden method getCount to get the number of tabs
-//        @Override
-//        public int getCount() {
-//            return 2;
-//        }
-//    }
 }

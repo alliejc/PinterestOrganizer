@@ -29,26 +29,23 @@ public class SavedPinsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private List<PDKPin> pinList = new ArrayList();
-    private SharedPreferences mPreferences;
-    private Map<String,?> keys;
-    private SharedPreferences.Editor editor;
-
-    private static final String USERNAME = "userName";
-    private String userName;
+    private List<PDKPin> mPinList = new ArrayList();
+    private SharedPreferences mSharedPreferences;
+    private Map<String,?> mKeys;
+    private SharedPreferences.Editor mEditor;
+    private String mUserName;
 
     private static final String BOARDNAME = "boardName";
-    private String boardName;
+    private String mBoardName;
 
     public SavedPinsFragment() {
         // Required empty public constructor
     }
 
-    public static SavedPinsFragment newInstance(String boardName, String userName) {
+    public static SavedPinsFragment newInstance(String boardName) {
         SavedPinsFragment fragment = new SavedPinsFragment();
         Bundle args = new Bundle();
         args.putString(BOARDNAME, boardName);
-        args.putString(USERNAME, userName);
         fragment.setArguments(args);
 
         return fragment;
@@ -58,15 +55,14 @@ public class SavedPinsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        keys = mPreferences.getAll();
-        editor = mPreferences.edit();
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mKeys = mSharedPreferences.getAll();
+        mUserName = mSharedPreferences.getString("username", "");
+        mEditor = mSharedPreferences.edit();
 
         if (getArguments() != null) {
-            boardName = getArguments().getString(BOARDNAME);
-            userName = getArguments().getString(USERNAME);
+            mBoardName = getArguments().getString(BOARDNAME);
         }
-
     }
 
     @Override
@@ -98,7 +94,7 @@ public class SavedPinsFragment extends Fragment {
     private void getSavedUserPins() {
         String pathA = "boards/";
         String pathB = "/pins/";
-        String output = String.format("%s%s/%s%s", pathA, removeSpaces(userName), removeSpaces(boardName), pathB);
+        String output = String.format("%s%s/%s%s", pathA, removeSpaces(mUserName), removeSpaces(mBoardName), pathB);
 
         HashMap<String, String> params = new HashMap();
         params.put("fields", "image, link, note");
@@ -109,8 +105,8 @@ public class SavedPinsFragment extends Fragment {
             public void onSuccess(PDKResponse response) {
 
                 for (int i = 0; i < response.getPinList().size(); i++) {
-                    if (keys.containsKey(response.getPinList().get(i).getUid())){
-                        pinList.add(response.getPinList().get(i));
+                    if (mKeys.containsKey(response.getPinList().get(i).getUid())){
+                        mPinList.add(response.getPinList().get(i));
                     }
                 }
                 setRecyclerView();
@@ -129,11 +125,11 @@ public class SavedPinsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        SavedPinsRecyclerAdapter mAdapter = new SavedPinsRecyclerAdapter(pinList, getContext(), (savedPin, favorite) -> {
+        SavedPinsRecyclerAdapter mAdapter = new SavedPinsRecyclerAdapter(mPinList, getContext(), (savedPin, favorite) -> {
             if(favorite){
-                editor.putString(savedPin.getUid(), savedPin.getUid()).apply();
+                mEditor.putString(savedPin.getUid(), savedPin.getUid()).apply();
             } else {
-                editor.remove(savedPin.getUid()).apply();
+                mEditor.remove(savedPin.getUid()).apply();
             }
         });
         mRecyclerView.setAdapter(mAdapter);

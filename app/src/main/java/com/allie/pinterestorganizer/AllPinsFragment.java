@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -32,29 +31,26 @@ public class AllPinsFragment extends Fragment {
 
     private OnPinFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private List<PDKPin> pinList = new ArrayList<>();
+    private List<PDKPin> mPinList = new ArrayList<>();
     private MaterialFavoriteButton mMaterialFavoriteButton;
-    public SharedPreferences mPreferences;
-    private SharedPreferences.Editor editor;
+    public SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor mEditor;
+    private String mUserName;
     private Boolean hasNext;
     private int mOffset = 0;
 
-    private static final String USERNAME = "userName";
-    private String userName;
-
     private static final String BOARDNAME = "boardName";
-    private String boardName;
+    private String mBoardName;
 
 
     public AllPinsFragment() {
         // Required empty public constructor
     }
 
-    public static AllPinsFragment newInstance(String boardName, String userName) {
+    public static AllPinsFragment newInstance(String boardName) {
         AllPinsFragment fragment = new AllPinsFragment();
         Bundle args = new Bundle();
         args.putString(BOARDNAME, boardName);
-        args.putString(USERNAME, userName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -62,12 +58,14 @@ public class AllPinsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mEditor = mSharedPreferences.edit();
+
         if (getArguments() != null) {
-            boardName = getArguments().getString(BOARDNAME);
-            userName = getArguments().getString(USERNAME);
+            mBoardName = getArguments().getString(BOARDNAME);
+            mUserName = mSharedPreferences.getString("username", "").toString();
         }
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        editor = mPreferences.edit();
     }
 
     @Override
@@ -95,11 +93,11 @@ public class AllPinsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(pinList, getContext(), (PDKPin savedPin, Boolean favorite) -> {
+        PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(mPinList, getContext(), (PDKPin savedPin, Boolean favorite) -> {
             if(favorite){
-                editor.putString(savedPin.getUid(), savedPin.getUid()).apply();
+                mEditor.putString(savedPin.getUid(), savedPin.getUid()).apply();
             } else {
-                editor.remove(savedPin.getUid()).apply();
+                mEditor.remove(savedPin.getUid()).apply();
             }
         });
 
@@ -118,7 +116,7 @@ public class AllPinsFragment extends Fragment {
     private void getUserPins() {
         String pathA = "boards/";
         String pathB = "/pins/";
-        String output = String.format("%s%s/%s%s", pathA, removeSpaces(userName), removeSpaces(boardName), pathB);
+        String output = String.format("%s%s/%s%s", pathA, removeSpaces(mUserName), removeSpaces(mBoardName), pathB);
 
         HashMap<String, String> params = new HashMap();
         params.put("fields", "image, link, note");
@@ -128,7 +126,7 @@ public class AllPinsFragment extends Fragment {
             public void onSuccess(PDKResponse response){
 
                 for(int i = 0; i < response.getPinList().size(); i++){
-                    pinList.add(response.getPinList().get(i));
+                    mPinList.add(response.getPinList().get(i));
                 }
 
                 hasNext = response.hasNext();

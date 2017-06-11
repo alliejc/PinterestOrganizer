@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.pinterest.android.pdk.PDKPin;
-import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
