@@ -48,7 +48,12 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         mEditor = mSharedPreferences.edit();
 
         setupToolBar();
-        loadHomePage();
+
+        if(mSharedPreferences.getString("token", "").isEmpty() || mSharedPreferences.getString("username", "").isEmpty()){
+            loginWithPinterest();
+        } else {
+            loadHomePage();
+        }
     }
 
     @Override
@@ -149,16 +154,10 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     }
 
     private void loadHomePage() {
-
-        if(mSharedPreferences.getString("token", "").isEmpty() || mSharedPreferences.getString("username", "").isEmpty()){
-//            addFragmentOnTop(WelcomeFragment.newInstance());
-            loginWithPinterest();
-
-        } else {
             //Not added to backstack to keep as "home screen" fragment
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.main_framelayout, BoardsFragment.newInstance(), "allboards").commit();
-        }
+//        }
     }
 
     @Override

@@ -128,7 +128,7 @@ public class SavedPinsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapter = new SavedPinsRecyclerAdapter(mPinList, getContext(), (savedPin, favorite) -> {
+        mAdapter = new SavedPinsRecyclerAdapter(getContext(), (savedPin, favorite) -> {
             if(favorite){
                 mEditor.putString(savedPin.getUid(), savedPin.getUid()).apply();
             } else {

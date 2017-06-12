@@ -15,13 +15,14 @@ import com.pinterest.android.pdk.PDKPin;
 import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 //TODO: Add ability to loadmore based off offset
 public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerViewAdapter.ViewHolder> {
 
-    private final List<PDKPin> mList;
+    private final List<PDKPin> mList = new ArrayList<>();
     private Context mContext;
     private final OnSaveClickListener listener;
     private SharedPreferences preferences;
@@ -32,8 +33,7 @@ public class PinsRecyclerViewAdapter extends RecyclerView.Adapter<PinsRecyclerVi
     }
 
 
-    public PinsRecyclerViewAdapter(List<PDKPin> items, Context context, OnSaveClickListener listener) {
-        this.mList = items;
+    public PinsRecyclerViewAdapter(Context context, OnSaveClickListener listener) {
         this.mContext = context;
         this.listener = listener;
     }

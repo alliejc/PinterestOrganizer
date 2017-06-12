@@ -13,11 +13,12 @@ import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.pinterest.android.pdk.PDKPin;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SavedPinsRecyclerAdapter extends RecyclerView.Adapter<SavedPinsRecyclerAdapter.ViewHolder> {
 
-        private final List<PDKPin> mList;
+        private final List<PDKPin> mList = new ArrayList<>();
         private Context mContext;
         private final OnSaveClickListener listener;
 
@@ -26,8 +27,7 @@ public class SavedPinsRecyclerAdapter extends RecyclerView.Adapter<SavedPinsRecy
         }
 
 
-        public SavedPinsRecyclerAdapter(List<PDKPin> items, Context context, OnSaveClickListener listener) {
-            this.mList = items;
+        public SavedPinsRecyclerAdapter(Context context, OnSaveClickListener listener) {
             this.mContext = context;
             this.listener = listener;
         }

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.pinterest.android.pdk.PDKBoard;
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
 import com.pinterest.android.pdk.PDKException;
@@ -23,7 +24,7 @@ public class BoardsFragment extends Fragment {
 
     private OnBoardFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private List<PDKResponse> boardList = new ArrayList<>();
+    private List<PDKBoard> boardList = new ArrayList<>();
     private BoardsRecyclerViewAdapter mAdapter;
     private String mSelectedBoardName;
 
@@ -39,7 +40,6 @@ public class BoardsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getUserBoards();
     }
 
     @Override
@@ -57,8 +57,7 @@ public class BoardsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-            getUserBoards();
+        getUserBoards();
     }
 
     private void setRecyclerView() {
@@ -67,7 +66,7 @@ public class BoardsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapter= new BoardsRecyclerViewAdapter(boardList, getContext(), boardName -> {
+        mAdapter= new BoardsRecyclerViewAdapter(getContext(), boardName -> {
             mSelectedBoardName = boardName;
             mListener.onBoardFragmentInteraction(mSelectedBoardName);
         });
@@ -83,10 +82,9 @@ public class BoardsFragment extends Fragment {
             public void onSuccess(PDKResponse response){
 
                 for(int i = 0; i < response.getBoardList().size(); i++){
-                    boardList.add(response);
+                    boardList.add(response.getBoardList().get(i));
                 }
 
-//                setRecyclerView();
                 mAdapter.updateAdapter(boardList);
             }
 

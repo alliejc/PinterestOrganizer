@@ -9,14 +9,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pinterest.android.pdk.PDKBoard;
-import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 import java.util.List;
 
 //TODO: Make generic so other AllPinsFragments can use
 public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecyclerViewAdapter.BoardViewHolder> {
 
-    private final List<PDKResponse> mList;
+    private final List<PDKBoard> mList = new ArrayList<>();
     private Context mContext;
     private final OnItemClickListener listener;
     private String boardName;
@@ -25,8 +26,7 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
         void onItemClick(String boardId);
     }
 
-    public BoardsRecyclerViewAdapter(List<PDKResponse> items, Context context, OnItemClickListener listener) {
-        this.mList = items;
+    public BoardsRecyclerViewAdapter(Context context, OnItemClickListener listener) {
         this.mContext = context;
         this.listener = listener;
     }
@@ -44,11 +44,11 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
     @Override
     public void onBindViewHolder(final BoardViewHolder holder, int position) {
 
-        holder.mTitle.setText(mList.get(position).getBoardList().get(position).getName());
-        Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);
+        holder.mTitle.setText(mList.get(position).getName());
+        Picasso.with(mContext).load(mList.get(position).getImageUrl()).into(holder.mImageView);
     }
 
-    public void updateAdapter(List<PDKResponse> items) {
+    public void updateAdapter(List<PDKBoard> items) {
 
         mList.addAll(items);
         notifyDataSetChanged();
@@ -72,7 +72,7 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
 
             boardView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                boardName = mList.get(position).getBoardList().get(position).getName().toString();
+                boardName = mList.get(position).getName();
                 listener.onItemClick(boardName);
             });
         }
