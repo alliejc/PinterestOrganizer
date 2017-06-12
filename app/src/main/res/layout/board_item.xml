@@ -19,21 +19,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_margin="@dimen/text_margin"
-            android:weightSum="100">
+            android:layout_margin="@dimen/text_margin">
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:textAppearance="?attr/textAppearanceListItem"
-                android:layout_weight="10" />
-
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="90" />
+                android:textColor="@color/color_default"
+                android:textSize="20sp"
+                android:textAlignment="center"/>
 
         </LinearLayout>
     </android.support.v7.widget.CardView>

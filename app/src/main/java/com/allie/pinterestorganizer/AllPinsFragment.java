@@ -33,18 +33,10 @@ public class AllPinsFragment extends Fragment {
     private OnPinFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private List<PDKPin> mPinList = new ArrayList<>();
-    private MaterialFavoriteButton mMaterialFavoriteButton;
     public SharedPreferences mSharedPreferences;
     private PinsRecyclerViewAdapter mAdapter;
     private SharedPreferences.Editor mEditor;
     private String mUserName;
-    private PDKClient pdkClient;
-    private PDKCallback pdkCallback;
-    private PDKResponse pdkResponse;
-    private Boolean loading;
-    private int mTotalLoaded = 0;
-    private static final String PIN_FIELDS = "id,link,image,note,board";
-
 
     private static final String BOARDNAME = "boardName";
     private String mBoardName;
@@ -81,7 +73,6 @@ public class AllPinsFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View rootView = inflater.inflate(R.layout.item_list, container, false);
-        mMaterialFavoriteButton = (MaterialFavoriteButton) rootView.findViewById(R.id.favorite);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
 
         return rootView;
@@ -90,22 +81,6 @@ public class AllPinsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        pdkCallback = new PDKCallback() {
-            @Override
-            public void onSuccess(PDKResponse response) {
-                loading = false;
-                pdkResponse = response;
-                mAdapter.updateAdapter(response.getPinList());
-            }
-
-            @Override
-            public void onFailure(PDKException exception) {
-                loading = false;
-                Log.e(getClass().getName(), exception.getDetailMessage());
-            }
-        };
-        loading = true;
 
         setRecyclerView();
         getUserPins();
@@ -126,21 +101,15 @@ public class AllPinsFragment extends Fragment {
         });
 
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                if((mTotalLoaded - 10) >= recyclerView.getLayoutManager().getItemCount()){
-                    loadNext();
-                }
-            }
-        });
+//        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                if(pdkResponse.hasNext()){
+//                    pdkResponse.loadNext(pdkCallback);
+//                }
+//            }
+//        });
     }
 
 //    private void loadDataFromApi() {
@@ -193,10 +162,10 @@ public class AllPinsFragment extends Fragment {
             @Override
             public void onSuccess(PDKResponse response) {
 
+//                pdkResponse = response;
+
                 for (int i = 0; i < response.getPinList().size(); i++) {
                     mPinList.add(response.getPinList().get(i));
-                    mTotalLoaded++;
-                    loading = false;
                 }
                 mAdapter.updateAdapter(mPinList);
             }
@@ -204,19 +173,18 @@ public class AllPinsFragment extends Fragment {
             @Override
             public void onFailure(PDKException exception) {
                 Log.d("Failure", "getUserPins");
-                loading = false;
             }
         });
     }
 
-    private void loadNext() {
-
-        if (!loading && pdkResponse.hasNext()) {
-            loading = true;
-            pdkResponse.loadNext(pdkCallback);
-            mAdapter.updateAdapter(mPinList);
-        }
-    }
+//    private void loadNext() {
+//
+//        if (!loading && pdkResponse.hasNext()) {
+//            loading = true;
+//            pdkResponse.loadNext(pdkCallback);
+//            mAdapter.updateAdapter(mPinList);
+//        }
+//    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

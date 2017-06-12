@@ -1,6 +1,8 @@
 package com.allie.pinterestorganizer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,9 @@ import android.widget.TextView;
 import com.pinterest.android.pdk.PDKBoard;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +50,7 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
     public void onBindViewHolder(final BoardViewHolder holder, int position) {
 
         holder.mTitle.setText(mList.get(position).getName());
-        Picasso.with(mContext).load(mList.get(position).getImageUrl()).into(holder.mImageView);
+//        Picasso.with(mContext).load(mList.get(position).getImageUrl()).into(holder.mImageView);
     }
 
     public void updateAdapter(List<PDKBoard> items) {
@@ -62,13 +67,13 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
     public class BoardViewHolder extends RecyclerView.ViewHolder {
 
         TextView mTitle;
-        ImageView mImageView;
+//        ImageView mImageView;
 
         public BoardViewHolder(View boardView) {
             super(boardView);
 
             mTitle = (TextView) boardView.findViewById(R.id.title);
-            mImageView = (ImageView) boardView.findViewById(R.id.image);
+//            mImageView = (ImageView) boardView.findViewById(R.id.image);
 
             boardView.setOnClickListener(v -> {
                 int position = getAdapterPosition();

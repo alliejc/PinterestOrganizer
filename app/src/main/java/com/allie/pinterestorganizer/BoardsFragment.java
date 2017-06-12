@@ -84,7 +84,6 @@ public class BoardsFragment extends Fragment {
                 for(int i = 0; i < response.getBoardList().size(); i++){
                     boardList.add(response.getBoardList().get(i));
                 }
-
                 mAdapter.updateAdapter(boardList);
             }
 

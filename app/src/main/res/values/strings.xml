@@ -5,4 +5,7 @@
     <string name="logout">LOGOUT</string>
     <string name="errorMessage">Uh oh...something went wrong</string>
     <string name="loginMessage">LOGIN WITH PINTEREST TO START ORGANIZING</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
