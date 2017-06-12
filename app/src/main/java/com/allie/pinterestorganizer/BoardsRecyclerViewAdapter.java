@@ -43,10 +43,6 @@ public class BoardsRecyclerViewAdapter extends RecyclerView.Adapter<BoardsRecycl
 
     @Override
     public void onBindViewHolder(final BoardViewHolder holder, int position) {
-//        PDKResponse response = mList.get(position);
-//        holder.mTitle.setText(response.getBoardList().get(position).getName());
-//        holder.mTitle.setText(response.getBoardList().get(position).getName());
-
 
         holder.mTitle.setText(mList.get(position).getBoardList().get(position).getName());
         Picasso.with(mContext).load(mList.get(position).getPinList().get(position).getImageUrl()).into(holder.mImageView);

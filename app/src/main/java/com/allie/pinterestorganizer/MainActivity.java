@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener,BoardsFragment.OnBoardFragmentInteractionListener, AllPinsFragment.OnPinFragmentInteractionListener, SavedPinsFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener,BoardsFragment.OnBoardFragmentInteractionListener, AllPinsFragment.OnPinFragmentInteractionListener, SavedPinsFragment.OnFragmentInteractionListener, WelcomeFragment.OnWelcomeInteractionListener {
 
     private ActionBar mActionBar;
     private static final String appID = "4903389675355384750";
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     private TabLayout mTabLayout;
     public SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mEditor;
+    private Toolbar mToolbar;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +48,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         mEditor = mSharedPreferences.edit();
 
         setupToolBar();
-
-        if(mSharedPreferences.getString("token", "").isEmpty() || mSharedPreferences.getString("username", "").isEmpty()){
-            loginWithPinterest();
-        } else {
-            loadHomePage();
-        }
+        loadHomePage();
     }
 
     @Override
@@ -60,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         switch (item.getItemId()) {
             case R.id.action_login:
                 loginWithPinterest();
+                return true;
+
+            case R.id.action_logout:
+                logoutWithPinterest();
                 return true;
 
             case android.R.id.home:
@@ -76,9 +76,24 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         return true;
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+       MenuItem mLogin = menu.findItem(R.id.action_login);
+       MenuItem mLogout = menu.findItem(R.id.action_logout);
+
+        if(mSharedPreferences.getString("token", "").isEmpty() || mSharedPreferences.getString("username", "").isEmpty()){
+            mLogin.setVisible(true);
+            mLogout.setVisible(false);
+        } else {
+            mLogin.setVisible(false);
+            mLogout.setVisible(true);
+        }
+        return true;
+    }
+
     private void setupToolBar() {
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(myToolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         mActionBar = getSupportActionBar();
         mActionBar.setTitle(R.string.app_name);
         mActionBar.setDisplayShowTitleEnabled(true);
@@ -88,11 +103,19 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         mTabLayout.addOnTabSelectedListener(this);
     }
 
+    private void logoutWithPinterest() {
+        mEditor.clear().apply();
+        PDKClient.getInstance().logout();
+//        addFragmentOnTop(WelcomeFragment.newInstance());
+    }
+
     private void loginWithPinterest() {
 
         List scopes = new ArrayList<String>();
         scopes.add(PDKClient.PDKCLIENT_PERMISSION_READ_PUBLIC);
         scopes.add(PDKClient.PDKCLIENT_PERMISSION_WRITE_PUBLIC);
+        scopes.add(PDKClient.PDKCLIENT_PERMISSION_READ_PRIVATE);
+        scopes.add(PDKClient.PDKCLIENT_PERMISSION_WRITE_PRIVATE);
 
         PDKClient.getInstance().login(this, scopes, new PDKCallback() {
 
@@ -106,10 +129,13 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
                     public void onSuccess(PDKResponse response) {
                         mUserName = response.getUser().getUsername().toString();
                         mEditor.putString("username", mUserName).apply();
+                        Toast.makeText(getApplicationContext(), R.string.login, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onFailure(PDKException exception) {
+                        Toast.makeText(getApplicationContext(), R.string.errorMessage, Toast.LENGTH_SHORT).show();
+
                     }
                 });
             }
@@ -117,15 +143,22 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
             @Override
             public void onFailure(PDKException exception) {
                 Log.e(getClass().getName(), exception.getDetailMessage());
+                Toast.makeText(getApplicationContext(), R.string.errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
-        Toast.makeText(getApplicationContext(), "login", Toast.LENGTH_SHORT).show();
     }
 
     private void loadHomePage() {
-        //Not added to backstack to keep as "home screen" fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.main_framelayout, BoardsFragment.newInstance(), "AllBoards").commit();
+
+        if(mSharedPreferences.getString("token", "").isEmpty() || mSharedPreferences.getString("username", "").isEmpty()){
+//            addFragmentOnTop(WelcomeFragment.newInstance());
+            loginWithPinterest();
+
+        } else {
+            //Not added to backstack to keep as "home screen" fragment
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.main_framelayout, BoardsFragment.newInstance(), "allboards").commit();
+        }
     }
 
     @Override
@@ -137,9 +170,6 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         mEditor.putString("token", mToken).apply();
 
         loadHomePage();
-
-        Toast.makeText(getApplicationContext(), "result", Toast.LENGTH_SHORT).show();
-
     }
 
     private void addFragmentOnTop(Fragment fragment) {
@@ -159,12 +189,15 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 1) {
             fragmentManager.popBackStackImmediate();
+            mTabLayout.getTabAt(fragmentManager.getBackStackEntryCount()).select();
 
         } else if (fragmentManager.getBackStackEntryCount() < 1) {
             moveTaskToBack(true);
+            mTabLayout.getTabAt(fragmentManager.getBackStackEntryCount()).select();
 
         } else {
             super.onBackPressed();
+            mTabLayout.getTabAt(fragmentManager.getBackStackEntryCount()).select();
         }
     }
 
@@ -175,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
         addFragmentOnTop(AllPinsFragment.newInstance(boardName));
         mTabLayout.getTabAt(1).select();
-//        onTabSelected(mTabLayout.getTabAt(1));
+        onTabSelected(mTabLayout.getTabAt(1));
 
     }
 
@@ -209,5 +242,11 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onWelcomeInteraction() {
+//        loginWithPinterest();
+//        loadHomePage();
     }
 }

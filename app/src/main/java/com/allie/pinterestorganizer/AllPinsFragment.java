@@ -19,6 +19,7 @@ import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
 import com.pinterest.android.pdk.PDKException;
 import com.pinterest.android.pdk.PDKPin;
+import com.pinterest.android.pdk.PDKRequest;
 import com.pinterest.android.pdk.PDKResponse;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class AllPinsFragment extends Fragment {
     private List<PDKPin> mPinList = new ArrayList<>();
     private MaterialFavoriteButton mMaterialFavoriteButton;
     public SharedPreferences mSharedPreferences;
+    private PinsRecyclerViewAdapter mAdapter;
     private SharedPreferences.Editor mEditor;
     private String mUserName;
     private Boolean hasNext;
@@ -76,6 +78,7 @@ public class AllPinsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.item_list, container, false);
         mMaterialFavoriteButton = (MaterialFavoriteButton) rootView.findViewById(R.id.favorite);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        setRecyclerView();
 
         return rootView;
     }
@@ -93,7 +96,7 @@ public class AllPinsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        PinsRecyclerViewAdapter mAdapter= new PinsRecyclerViewAdapter(mPinList, getContext(), (PDKPin savedPin, Boolean favorite) -> {
+         mAdapter= new PinsRecyclerViewAdapter(mPinList, getContext(), (PDKPin savedPin, Boolean favorite) -> {
             if(favorite){
                 mEditor.putString(savedPin.getUid(), savedPin.getUid()).apply();
             } else {
@@ -102,15 +105,52 @@ public class AllPinsFragment extends Fragment {
         });
 
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
 
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if(dy > 0){
+                    recyclerView.getScrollState()
+                }
+            }
+        });
     }
 
-    private String removeSpaces(String string) {
+    private void loadDataFromApi() {
+        String cursor = PDKClient.PDK_QUERY_PARAM_CURSOR;
+
+        PDKClient.getInstance().getPath(cursor, new PDKCallback() {
+            @Override
+            public void onSuccess(PDKResponse response){
+
+                for(int i = 0; i < response.getPinList().size(); i++){
+                    mPinList.add(response.getPinList().get(i));
+                }
+                mAdapter.updateAdapter(mPinList);
+            }
+
+            @Override
+            public void onFailure(PDKException exception) {
+                Log.d("Failure", "getUserPins");
+            }
+        });
+    }
+
+        private String removeSpaces(String string) {
         String noSpacesString = "";
+        String finalString = "";
         if(string != null){
-            noSpacesString = string.replaceAll("\\s+","-");
+            noSpacesString = string.replaceAll( "[^a-zA-Z0-9-\\s]", "");
+            finalString = noSpacesString.replaceAll("\\s+","-");
+
         }
-        return noSpacesString;
+        return finalString;
     }
 
     private void getUserPins() {
@@ -128,10 +168,7 @@ public class AllPinsFragment extends Fragment {
                 for(int i = 0; i < response.getPinList().size(); i++){
                     mPinList.add(response.getPinList().get(i));
                 }
-
-                hasNext = response.hasNext();
-
-                setRecyclerView();
+                mAdapter.updateAdapter(mPinList);
             }
 
             @Override

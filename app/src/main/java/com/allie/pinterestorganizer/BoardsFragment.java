@@ -49,6 +49,7 @@ public class BoardsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.item_list, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        setRecyclerView();
 
         return rootView;
     }
@@ -57,9 +58,7 @@ public class BoardsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        if (savedInstanceState == null) {
             getUserBoards();
-//        }
     }
 
     private void setRecyclerView() {
@@ -74,8 +73,6 @@ public class BoardsFragment extends Fragment {
         });
 
         mRecyclerView.setAdapter(mAdapter);
-//        mAdapter.updateAdapter(boardList);
-
     }
 
     private void getUserBoards() {
@@ -89,7 +86,8 @@ public class BoardsFragment extends Fragment {
                     boardList.add(response);
                 }
 
-                setRecyclerView();
+//                setRecyclerView();
+                mAdapter.updateAdapter(boardList);
             }
 
             @Override

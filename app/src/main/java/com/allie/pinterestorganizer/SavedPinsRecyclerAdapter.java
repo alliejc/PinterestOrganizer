@@ -49,11 +49,11 @@ public class SavedPinsRecyclerAdapter extends RecyclerView.Adapter<SavedPinsRecy
         holder.mFavoriteButton.setFavorite(true);
     }
 
-//        public void updateAdapter(List<PDKPin> responses) {
-//
-//            mList.addAll(responses);
-//            notifyDataSetChanged();
-//        }
+        public void updateAdapter(List<PDKPin> responses) {
+
+            mList.addAll(responses);
+            notifyDataSetChanged();
+        }
 
         @Override
         public int getItemCount() {

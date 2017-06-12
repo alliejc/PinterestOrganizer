@@ -1,9 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/action_login"
-        android:title="Login with Pinterest"
-        app:showAsAction="never"
-        android:visible="true"/>
+    <item
+        android:id="@+id/action_login"
+        android:title="@string/login"
+        android:icon="@drawable/badge"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_logout"
+        android:title="@string/logout"
+        android:icon="@drawable/badge"
+        app:showAsAction="never" />
 
 </menu>

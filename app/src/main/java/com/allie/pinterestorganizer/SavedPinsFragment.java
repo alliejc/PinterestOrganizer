@@ -34,6 +34,7 @@ public class SavedPinsFragment extends Fragment {
     private Map<String,?> mKeys;
     private SharedPreferences.Editor mEditor;
     private String mUserName;
+    private SavedPinsRecyclerAdapter mAdapter;
 
     private static final String BOARDNAME = "boardName";
     private String mBoardName;
@@ -72,6 +73,7 @@ public class SavedPinsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.item_list, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        setRecyclerView();
 
         return rootView;
     }
@@ -85,10 +87,12 @@ public class SavedPinsFragment extends Fragment {
 
     private String removeSpaces(String string) {
         String noSpacesString = "";
+        String finalString = "";
         if(string != null){
-            noSpacesString = string.replaceAll("\\s+","-");
+            noSpacesString = string.replaceAll( "[^a-zA-Z0-9-\\s]", "");
+            finalString = noSpacesString.replaceAll("\\s+","-");
         }
-        return noSpacesString;
+        return finalString;
     }
 
     private void getSavedUserPins() {
@@ -109,8 +113,7 @@ public class SavedPinsFragment extends Fragment {
                         mPinList.add(response.getPinList().get(i));
                     }
                 }
-                setRecyclerView();
-
+                mAdapter.updateAdapter(mPinList);
             }
             @Override
             public void onFailure(PDKException exception) {
@@ -125,7 +128,7 @@ public class SavedPinsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        SavedPinsRecyclerAdapter mAdapter = new SavedPinsRecyclerAdapter(mPinList, getContext(), (savedPin, favorite) -> {
+        mAdapter = new SavedPinsRecyclerAdapter(mPinList, getContext(), (savedPin, favorite) -> {
             if(favorite){
                 mEditor.putString(savedPin.getUid(), savedPin.getUid()).apply();
             } else {
