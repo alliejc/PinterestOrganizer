@@ -15,6 +15,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.allie.pinterestorganizer.fragments.AllPinsFragment;
+import com.allie.pinterestorganizer.fragments.BoardsFragment;
+import com.allie.pinterestorganizer.fragments.SavedPinsFragment;
+import com.allie.pinterestorganizer.fragments.WelcomeFragment;
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
 import com.pinterest.android.pdk.PDKException;

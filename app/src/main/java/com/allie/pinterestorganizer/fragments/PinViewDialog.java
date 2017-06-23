@@ -1,13 +1,14 @@
-package com.allie.pinterestorganizer;
+package com.allie.pinterestorganizer.fragments;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.allie.pinterestorganizer.R;
 
 public class PinViewDialog extends DialogFragment {
     // TODO: Rename parameter arguments, choose names that match

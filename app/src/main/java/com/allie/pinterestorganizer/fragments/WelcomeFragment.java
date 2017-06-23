@@ -1,4 +1,4 @@
-package com.allie.pinterestorganizer;
+package com.allie.pinterestorganizer.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+
+import com.allie.pinterestorganizer.R;
 
 
 public class WelcomeFragment extends Fragment{

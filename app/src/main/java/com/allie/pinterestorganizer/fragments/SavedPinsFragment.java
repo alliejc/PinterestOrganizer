@@ -1,4 +1,4 @@
-package com.allie.pinterestorganizer;
+package com.allie.pinterestorganizer.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,43 +14,43 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.ivbaranov.mfb.MaterialFavoriteButton;
+import com.allie.pinterestorganizer.R;
+import com.allie.pinterestorganizer.adapters.SavedPinsRecyclerAdapter;
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
 import com.pinterest.android.pdk.PDKException;
 import com.pinterest.android.pdk.PDKPin;
-import com.pinterest.android.pdk.PDKRequest;
 import com.pinterest.android.pdk.PDKResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-//TODO: Add ability to loadmore based off offset
-//TODO: Handle favorite click
-public class AllPinsFragment extends Fragment {
+public class SavedPinsFragment extends Fragment {
 
-    private OnPinFragmentInteractionListener mListener;
+    private OnFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private List<PDKPin> mPinList = new ArrayList<>();
-    public SharedPreferences mSharedPreferences;
-    private PinsRecyclerViewAdapter mAdapter;
+    private List<PDKPin> mPinList = new ArrayList();
+    private SharedPreferences mSharedPreferences;
+    private Map<String,?> mKeys;
     private SharedPreferences.Editor mEditor;
     private String mUserName;
+    private SavedPinsRecyclerAdapter mAdapter;
 
     private static final String BOARDNAME = "boardName";
     private String mBoardName;
 
-
-    public AllPinsFragment() {
+    public SavedPinsFragment() {
         // Required empty public constructor
     }
 
-    public static AllPinsFragment newInstance(String boardName) {
-        AllPinsFragment fragment = new AllPinsFragment();
+    public static SavedPinsFragment newInstance(String boardName) {
+        SavedPinsFragment fragment = new SavedPinsFragment();
         Bundle args = new Bundle();
         args.putString(BOARDNAME, boardName);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -59,11 +59,12 @@ public class AllPinsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mKeys = mSharedPreferences.getAll();
+        mUserName = mSharedPreferences.getString("username", "");
         mEditor = mSharedPreferences.edit();
 
         if (getArguments() != null) {
             mBoardName = getArguments().getString(BOARDNAME);
-            mUserName = mSharedPreferences.getString("username", "").toString();
         }
     }
 
@@ -74,6 +75,7 @@ public class AllPinsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.item_list, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        setRecyclerView();
 
         return rootView;
     }
@@ -82,75 +84,20 @@ public class AllPinsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        setRecyclerView();
-        getUserPins();
+            getSavedUserPins();
     }
-
-    private void setRecyclerView() {
-
-        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
-
-        mAdapter = new PinsRecyclerViewAdapter(getContext(), (PDKPin savedPin, Boolean favorite) -> {
-            if (favorite) {
-                mEditor.putString(savedPin.getUid(), savedPin.getUid()).apply();
-            } else {
-                mEditor.remove(savedPin.getUid()).apply();
-            }
-        });
-
-        mRecyclerView.setAdapter(mAdapter);
-//        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                super.onScrolled(recyclerView, dx, dy);
-//                if(pdkResponse.hasNext()){
-//                    pdkResponse.loadNext(pdkCallback);
-//                }
-//            }
-//        });
-    }
-
-//    private void loadDataFromApi() {
-//
-//        if(pdkResponse.hasNext()){
-//            pdkResponse.loadNext(new PDKCallback() {
-//
-//            });
-//        }
-//
-//        PDKClient.getInstance().getPath(cursor, new PDKCallback() {
-//            @Override
-//            public void onSuccess(PDKResponse response){
-//
-//                for(int i = 0; i < response.getPinList().size(); i++){
-//                    mPinList.add(response.getPinList().get(i));
-//                }
-//                mAdapter.updateAdapter(mPinList);
-//            }
-//
-//            @Override
-//            public void onFailure(PDKException exception) {
-//                Log.d("Failure", "getUserPins");
-//            }
-//
-//        });
-//    }
 
     private String removeSpaces(String string) {
         String noSpacesString = "";
         String finalString = "";
-        if (string != null) {
-            noSpacesString = string.replaceAll("[^a-zA-Z0-9-\\s]", "");
-            finalString = noSpacesString.replaceAll("\\s+", "-");
-
+        if(string != null){
+            noSpacesString = string.replaceAll( "[^a-zA-Z0-9-\\s]", "");
+            finalString = noSpacesString.replaceAll("\\s+","-");
         }
         return finalString;
     }
 
-    private void getUserPins() {
-
+    private void getSavedUserPins() {
         String pathA = "boards/";
         String pathB = "/pins/";
         String output = String.format("%s%s/%s%s", pathA, removeSpaces(mUserName), removeSpaces(mBoardName), pathB);
@@ -158,18 +105,18 @@ public class AllPinsFragment extends Fragment {
         HashMap<String, String> params = new HashMap();
         params.put("fields", "image, link, note");
 
+
         PDKClient.getInstance().getPath(output, params, new PDKCallback() {
             @Override
             public void onSuccess(PDKResponse response) {
 
-//                pdkResponse = response;
-
                 for (int i = 0; i < response.getPinList().size(); i++) {
-                    mPinList.add(response.getPinList().get(i));
+                    if (mKeys.containsKey(response.getPinList().get(i).getUid())){
+                        mPinList.add(response.getPinList().get(i));
+                    }
                 }
                 mAdapter.updateAdapter(mPinList);
             }
-
             @Override
             public void onFailure(PDKException exception) {
                 Log.d("Failure", "getUserPins");
@@ -177,27 +124,35 @@ public class AllPinsFragment extends Fragment {
         });
     }
 
-//    private void loadNext() {
-//
-//        if (!loading && pdkResponse.hasNext()) {
-//            loading = true;
-//            pdkResponse.loadNext(pdkCallback);
-//            mAdapter.updateAdapter(mPinList);
-//        }
-//    }
+    private void setRecyclerView() {
+
+        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
+
+        mAdapter = new SavedPinsRecyclerAdapter(getContext(), (PDKPin savedPin, Boolean favorite) -> {
+            if(favorite){
+                mEditor.putString(savedPin.getUid(), savedPin.getUid()).apply();
+            } else {
+                mEditor.remove(savedPin.getUid()).apply();
+            }
+        });
+        mRecyclerView.setAdapter(mAdapter);
+
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
-            mListener.onPinFragmentInteraction(uri);
+            mListener.onFragmentInteraction(uri);
         }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnPinFragmentInteractionListener) {
-            mListener = (OnPinFragmentInteractionListener) context;
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -210,8 +165,8 @@ public class AllPinsFragment extends Fragment {
         mListener = null;
     }
 
-    public interface OnPinFragmentInteractionListener {
+    public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onPinFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Uri uri);
     }
 }

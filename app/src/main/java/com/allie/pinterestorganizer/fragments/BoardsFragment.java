@@ -1,4 +1,4 @@
-package com.allie.pinterestorganizer;
+package com.allie.pinterestorganizer.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.allie.pinterestorganizer.adapters.BoardsRecyclerViewAdapter;
+import com.allie.pinterestorganizer.R;
 import com.pinterest.android.pdk.PDKBoard;
 import com.pinterest.android.pdk.PDKCallback;
 import com.pinterest.android.pdk.PDKClient;
@@ -66,7 +68,7 @@ public class BoardsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapter= new BoardsRecyclerViewAdapter(getContext(), boardName -> {
+        mAdapter= new BoardsRecyclerViewAdapter(getContext(), (String boardName) -> {
             mSelectedBoardName = boardName;
             mListener.onBoardFragmentInteraction(mSelectedBoardName);
         });

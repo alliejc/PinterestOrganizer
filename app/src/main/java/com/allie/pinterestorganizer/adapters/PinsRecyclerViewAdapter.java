@@ -1,4 +1,4 @@
-package com.allie.pinterestorganizer;
+package com.allie.pinterestorganizer.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.allie.pinterestorganizer.R;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.pinterest.android.pdk.PDKPin;
-import com.pinterest.android.pdk.PDKResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
