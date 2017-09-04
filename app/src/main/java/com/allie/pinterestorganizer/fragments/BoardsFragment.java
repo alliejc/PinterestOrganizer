@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.allie.pinterestorganizer.PinterestService;
 import com.allie.pinterestorganizer.adapters.BoardsRecyclerViewAdapter;
 import com.allie.pinterestorganizer.R;
 import com.pinterest.android.pdk.PDKBoard;
@@ -26,9 +27,9 @@ public class BoardsFragment extends Fragment {
 
     private OnBoardFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private List<PDKBoard> boardList = new ArrayList<>();
     private BoardsRecyclerViewAdapter mAdapter;
     private String mSelectedBoardName;
+    private PinterestService mPinterestService;
 
     public BoardsFragment() {
         // Required empty public constructor
@@ -51,6 +52,7 @@ public class BoardsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.item_list, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        mPinterestService = new PinterestService(getContext());
         setRecyclerView();
 
         return rootView;
@@ -59,7 +61,6 @@ public class BoardsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getUserBoards();
     }
 
     private void setRecyclerView() {
@@ -74,25 +75,7 @@ public class BoardsFragment extends Fragment {
         });
 
         mRecyclerView.setAdapter(mAdapter);
-    }
-
-    private void getUserBoards() {
-        HashMap<String, String> params = new HashMap();
-        params.put("fields", "id, name, description, image");
-        PDKClient.getInstance().getPath("me/boards", params , new PDKCallback() {
-            @Override
-            public void onSuccess(PDKResponse response){
-
-                for(int i = 0; i < response.getBoardList().size(); i++){
-                    boardList.add(response.getBoardList().get(i));
-                }
-                mAdapter.updateAdapter(boardList);
-            }
-
-            @Override
-            public void onFailure(PDKException exception) {
-            }
-        });
+        mAdapter.updateAdapter(mPinterestService.getUserBoards());
     }
 
     // TODO: Rename method, update argument and hook method into UI event

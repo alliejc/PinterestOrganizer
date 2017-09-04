@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.allie.pinterestorganizer.PinterestService;
 import com.allie.pinterestorganizer.adapters.PinsRecyclerViewAdapter;
 import com.allie.pinterestorganizer.R;
 import com.pinterest.android.pdk.PDKCallback;
@@ -37,6 +38,7 @@ public class AllPinsFragment extends Fragment {
     private PinsRecyclerViewAdapter mAdapter;
     private SharedPreferences.Editor mEditor;
     private String mUserName;
+    private PinterestService mPinterestService;
 
     private static final String BOARDNAME = "boardName";
     private String mBoardName;
@@ -60,6 +62,7 @@ public class AllPinsFragment extends Fragment {
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         mEditor = mSharedPreferences.edit();
+        mPinterestService = new PinterestService(getContext());
 
         if (getArguments() != null) {
             mBoardName = getArguments().getString(BOARDNAME);
@@ -83,7 +86,6 @@ public class AllPinsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         setRecyclerView();
-        getUserPins();
     }
 
     private void setRecyclerView() {
@@ -101,6 +103,8 @@ public class AllPinsFragment extends Fragment {
         });
 
         mRecyclerView.setAdapter(mAdapter);
+        mAdapter.updateAdapter(mPinterestService.getUserPins(mBoardName));
+
 //        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 //            @Override
 //            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -138,44 +142,6 @@ public class AllPinsFragment extends Fragment {
 //        });
 //    }
 
-    private String removeSpaces(String string) {
-        String noSpacesString = "";
-        String finalString = "";
-        if (string != null) {
-            noSpacesString = string.replaceAll("[^a-zA-Z0-9-\\s]", "");
-            finalString = noSpacesString.replaceAll("\\s+", "-");
-
-        }
-        return finalString;
-    }
-
-    private void getUserPins() {
-
-        String pathA = "boards/";
-        String pathB = "/pins/";
-        String output = String.format("%s%s/%s%s", pathA, removeSpaces(mUserName), removeSpaces(mBoardName), pathB);
-
-        HashMap<String, String> params = new HashMap();
-        params.put("fields", "image, link, note");
-
-        PDKClient.getInstance().getPath(output, params, new PDKCallback() {
-            @Override
-            public void onSuccess(PDKResponse response) {
-
-//                pdkResponse = response;
-
-                for (int i = 0; i < response.getPinList().size(); i++) {
-                    mPinList.add(response.getPinList().get(i));
-                }
-                mAdapter.updateAdapter(mPinList);
-            }
-
-            @Override
-            public void onFailure(PDKException exception) {
-                Log.d("Failure", "getUserPins");
-            }
-        });
-    }
 
 //    private void loadNext() {
 //
